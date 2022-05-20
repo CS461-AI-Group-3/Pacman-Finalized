@@ -106,8 +106,8 @@ public class GameManager : MonoBehaviour
 
         if (!HasRemainingPellets())
         {
-            pacman.gameObject.SetActive(false);
-            Invoke(nameof(NewRound), 3f);
+           // pacman.gameObject.SetActive(false);
+           // Invoke(nameof(NewRound), 3f);
         }
     }
 
