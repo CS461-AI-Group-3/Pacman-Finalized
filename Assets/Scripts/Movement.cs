@@ -75,10 +75,10 @@ public class Movement : MonoBehaviour
         score2 = 0;
         miniMaxExpandedNodes = 0;
 
-        for(int i = 0; i < foodPellete.Length; i++){
-            Instantiate(pellet, foodPellete[i],Quaternion.identity);
-            eaten[i] = false;
-        }
+         for(int i = 0; i < foodPellete.Length; i++){
+             Instantiate(pellet, foodPellete[i],Quaternion.identity);
+             eaten[i] = false;
+         }
 
     }
 
@@ -269,8 +269,8 @@ public class Movement : MonoBehaviour
         while (myStack.Count != 0)
         {
             countW++;
-            gradient += 0.003f; //Small maze icin
-            //gradient += 0.001f; //Medium maze icin
+            //gradient += 0.003f; //Small maze icin
+            gradient += 0.001f; //Medium maze icin
             SuccessorNode successors = myStack.Pop();
             actions = new ArrayList();
             pathCoordinates = new ArrayList();
@@ -380,8 +380,8 @@ public class Movement : MonoBehaviour
         while (myQueue.Count != 0)
         {
             countW++;
-            gradient += 0.003f; //Small maze icin
-            //gradient += 0.001f; //Medium maze icin
+            //gradient += 0.003f; //Small maze icin
+            gradient += 0.001f; //Medium maze icin
             SuccessorNode successors = myQueue.Dequeue();
             actions = new ArrayList();
             pathCoordinates = new ArrayList();
@@ -491,8 +491,8 @@ public class Movement : MonoBehaviour
         while (myStack.Count != 0)
         {
             countW++;
-            gradient += 0.003f; //Small maze icin
-            //gradient += 0.001f; //Medium maze icin
+            //gradient += 0.003f; //Small maze icin
+            gradient += 0.001f; //Medium maze icin
             SuccessorNode successors = myStack.Dequeue();
             actions = new ArrayList();
             pathCoordinates = new ArrayList();
@@ -602,8 +602,8 @@ public class Movement : MonoBehaviour
         while (myStack.Count != 0)
         {
             countW++;
-            gradient += 0.003f; //Small maze icin
-            //gradient += 0.001f; //Medium maze icin
+            //gradient += 0.003f; //Small maze icin
+            gradient += 0.001f; //Medium maze icin
             SuccessorNode successors = myStack.Dequeue();
             actions = new ArrayList();
             pathCoordinates = new ArrayList();
@@ -834,8 +834,8 @@ public class Movement : MonoBehaviour
         return false;
     }
 
-    
-    public float evaluationFunction(Vector3 pacmanPos, Vector3 ghostPos,float score)
+     
+    public float betterEvaluationFunction(Vector3 pacmanPos, Vector3 ghostPos,float score,int player)
     {
         miniMaxExpandedNodes++;
         Vector2 pacman = new Vector2(pacmanPos.x,pacmanPos.y);
@@ -844,30 +844,78 @@ public class Movement : MonoBehaviour
         float goalDistance = manhattanDistance(pacman,goalPosition);
         float minFoodDistance = 9999f;
         bool foundFood = false; 
+        float insideScore = 0f;
         for(int i = 0; i < eaten.Length; i++){
             if(eaten[i] != true)
             {
                 foundFood = true;
                 float tempFoodDistance = manhattanDistance(new Vector2(foodPellete[i].x, foodPellete[i].y), pacman);
-                if(tempFoodDistance != 0){
-                    if( tempFoodDistance <= minFoodDistance){
+                insideScore -= 0.8f*tempFoodDistance;
+
+                if(tempFoodDistance >=1f){
+                    if( tempFoodDistance < minFoodDistance){
                         minFoodDistance = tempFoodDistance;
-                        score -= 5f; 
+                        insideScore -= 0.55f*minFoodDistance; 
                     }  
                 }else{
-                    return 10f;
+                    return 30f;
                 }
             }
         } 
         if(!foundFood){
             return 500f;
         }
-        if(distance < 2){
-            return -9999f;
+        if(distance <= 2.8f){
+            return -99999f;
+        }
+        
+        if(player == 1)
+        {
+            insideScore = 0;
         }
 
+        return (float)(2.5f*insideScore + (-3/distance) + (3/minFoodDistance));
+    }
+    public float evaluationFunction(Vector3 pacmanPos, Vector3 ghostPos,float score,int player)
+    {
+        miniMaxExpandedNodes++;
+        Vector2 pacman = new Vector2(pacmanPos.x,pacmanPos.y);
+        Vector2 ghost = new Vector2(ghostPos.x,ghostPos.y);
+        float distance = manhattanDistance(pacman,ghost);
+        float goalDistance = manhattanDistance(pacman,goalPosition);
+        float minFoodDistance = 9999f;
+        bool foundFood = false; 
+        float insideScore = 0f;
+        for(int i = 0; i < eaten.Length; i++){
+            if(eaten[i] != true)
+            {
+                foundFood = true;
+                float tempFoodDistance = manhattanDistance(new Vector2(foodPellete[i].x, foodPellete[i].y), pacman);
+                insideScore -= 0.8f*tempFoodDistance;
 
-        return (float)(score + (-3/distance) + (3/minFoodDistance));
+                if(tempFoodDistance >=1f){
+                    if( tempFoodDistance < minFoodDistance){
+                        minFoodDistance = tempFoodDistance;
+                        insideScore -= 0.055f*minFoodDistance; 
+                    }  
+                }else{
+                    return 30f;
+                }
+            }
+        } 
+        if(!foundFood){
+            return 500f;
+        }
+        if(distance <= 2.8f){
+            return -99999f;
+        }
+        
+        if(player == 1)
+        {
+            insideScore = 0;
+        }
+
+        return (float)(2.5f*insideScore + (-3/distance) + (3/minFoodDistance));
     }
 
     public ArrayList globalMinimax(int player,int depth, bool maximizing, bool start, Vector3 ghostPos,bool pruning, float alpha, float beta)
@@ -876,7 +924,7 @@ public class Movement : MonoBehaviour
         currentNode = new SuccessorNode();
         currentNode.state = rigidbody.position;
         currentNode.actions = new ArrayList();
-        score2 = -9999f;
+        score2 = 0f;
 
         return minimax(currentNode,player,depth,maximizing,start,ghostPos, pruning, alpha, beta);
 
@@ -903,7 +951,7 @@ public class Movement : MonoBehaviour
         }
         else{
             ArrayList r = new ArrayList();
-            state.successorScore = evaluationFunction(state.state, ghostPos,state.successorScore);
+            state.successorScore = evaluationFunction(state.state, ghostPos,state.successorScore,player);
             r.Add(state.successorScore);
             r.Add("f");
             return r;
@@ -914,7 +962,7 @@ public class Movement : MonoBehaviour
     {
         Debug.Log("Maxixmize in");
         string chosenAction = "";
-        float value = -9999f;
+        float value = Mathf.NegativeInfinity;
         int nextAgent = 1;
         float score;
         ArrayList items;
@@ -932,7 +980,7 @@ public class Movement : MonoBehaviour
             Debug.Log("ITEMS 2: " + score);
 
 
-            if(score >= value){
+            if(score > value){
                 value = score;
                 score2 += score;
                 chosenAction = (string)n.actions[0];
@@ -961,7 +1009,7 @@ public class Movement : MonoBehaviour
     public ArrayList minimize (SuccessorNode stateNode, int depth, int player,Vector3 ghostPos, bool pruning, float alpha, float beta){
         Debug.Log("Minimize in");
         string chosenAction = "";
-        float value = 9999f;
+        float value = Mathf.Infinity;
         int nextAgent = 0;
         float score = 0;
         ArrayList items;
@@ -972,7 +1020,7 @@ public class Movement : MonoBehaviour
 
             score = Mathf.Round((float)items[0]);
 
-            if(score <= value){
+            if(score < value){
                 value = score;
                 score2 += score;
                 chosenAction = (string)n.actions[0];
@@ -1001,7 +1049,7 @@ public class Movement : MonoBehaviour
         currentNode = new SuccessorNode();
         currentNode.state = rigidbody.position;
         currentNode.actions = new ArrayList();
-        score2 = -9999f;
+        score2 = 0f;
 
         return expectimax(currentNode,player,depth,maximizing,start,ghostPos, pruning, alpha, beta);
 
@@ -1011,7 +1059,7 @@ public class Movement : MonoBehaviour
 
     public ArrayList expectimax(SuccessorNode state, int player,int depth, bool maximizing, bool start, Vector3 ghostPos, bool pruning, float alpha, float beta){
         //startNode var
-        if(depth < 3){
+        if(depth < 2){
             if(start){
                 if( maximizing){
                     return maximizeValue(state,depth,0,ghostPos, pruning, alpha, beta);
@@ -1028,7 +1076,7 @@ public class Movement : MonoBehaviour
         }
         else{
             ArrayList r = new ArrayList();
-            state.successorScore = evaluationFunction(state.state, ghostPos,state.successorScore);
+            state.successorScore = betterEvaluationFunction(state.state, ghostPos,state.successorScore,player);
             r.Add(state.successorScore);
             r.Add("f");
             return r;
@@ -1039,7 +1087,7 @@ public class Movement : MonoBehaviour
     {
         Debug.Log("in maximizeValue");
         string chosenAction = "";
-        float value = -9999f;
+        float value = Mathf.NegativeInfinity;
         int nextAgent = 1;
         float score;
         ArrayList items;
@@ -1078,7 +1126,7 @@ public class Movement : MonoBehaviour
     public ArrayList average (SuccessorNode stateNode, int depth, int player,Vector3 ghostPos, bool pruning, float alpha, float beta){
         Debug.Log("In average");
        string chosenAction = "";
-        float value = 9999f;
+        float value = 0f;
         int nextAgent = 0;
         float score = 0;
         ArrayList items;
@@ -1180,7 +1228,7 @@ public class Movement : MonoBehaviour
     {
         //Debug.Log("obstacle: " + direction);
         // If no collider is hit then there is no obstacle in that direction
-        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.75f, 0f, direction, 1.5f, obstacleLayer);
+        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.5f, 0f, direction, 1f, obstacleLayer);
         return hit.collider != null;
     }
 

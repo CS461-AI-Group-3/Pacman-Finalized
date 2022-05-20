@@ -137,7 +137,7 @@ public class GhostMovement : MonoBehaviour
         Vector2 ghost = new Vector2(ghostPos.x,ghostPos.y);
         float distance = manhattanDistance(pacman,ghost);
         
-        return -distance/4f ;
+        return -distance/2f ;
     }
 
     public ArrayList globalMinimax(int player,int depth, bool maximizing, bool start, Vector3 ghostPos,bool pruning, float alpha, float beta)
@@ -146,7 +146,7 @@ public class GhostMovement : MonoBehaviour
         currentNode = new SuccessorNode();
         currentNode.state = rigidbody.position;
         currentNode.actions = new ArrayList();
-        score2 = -9999f;
+        score2 = 0;
 
         return minimax(currentNode,player,depth,maximizing,start,ghostPos, pruning, alpha, beta);
 
@@ -202,7 +202,7 @@ public class GhostMovement : MonoBehaviour
             Debug.Log("ITEMS 2: " + score);
 
 
-            if(score >= value){
+            if(score > value){
                 value = score;
                 score2 += score;
                 chosenAction = (string)n.actions[0];
@@ -242,7 +242,7 @@ public class GhostMovement : MonoBehaviour
 
             score = Mathf.Round((float)items[0]);
 
-            if(score <= value){
+            if(score < value){
                 value = score;
                 score2 += score;
                 chosenAction = (string)n.actions[0];
@@ -341,7 +341,7 @@ public class GhostMovement : MonoBehaviour
     public bool Occupied(Vector2 direction)
     {
         // If no collider is hit then there is no obstacle in that direction
-        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.75f, 0f, direction, 1.5f, obstacleLayer);
+        RaycastHit2D hit = Physics2D.BoxCast(transform.position, Vector2.one * 0.45f, 0f, direction, 0.9f, obstacleLayer);
         return hit.collider != null;
     }
 

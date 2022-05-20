@@ -6520,8 +6520,12 @@ PrefabInstance:
       value: -6
       objectReference: {fileID: 0}
     - target: {fileID: 6038318316045854519, guid: b6894cca0173e8041bba0e4a8be5fde1, type: 3}
+      propertyPath: eaten.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038318316045854519, guid: b6894cca0173e8041bba0e4a8be5fde1, type: 3}
       propertyPath: foodPellete.Array.size
-      value: 9
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6038318316045854524, guid: b6894cca0173e8041bba0e4a8be5fde1, type: 3}
       propertyPath: m_RootOrder
