@@ -1,4 +1,4 @@
-#How To Run Our Code
+# How To Run Our Code
 1. Clone the repo
 2. To open the file use unity version 
 3. For the first assignment the algorithms can work on scenes “Search and Medium Map”
